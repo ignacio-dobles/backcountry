@@ -209,12 +209,12 @@ Mockito (optional)
 
 Generate the final JAR:
 
-mvn clean package
+```mvn clean package```
 
 
 Run the JAR:
 
-java -jar target/backcountry-1.0.0.jar
+```java -jar target/backcountry-1.0.0.jar```
 
 ## Notes
 
