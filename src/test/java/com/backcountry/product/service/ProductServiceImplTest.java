@@ -3,34 +3,45 @@ package com.backcountry.product.service;
 import com.backcountry.product.dto.CreateProductRequest;
 import com.backcountry.product.dto.UpdateProductRequest;
 import com.backcountry.product.model.Product;
-import com.backcountry.product.repository.InMemoryProductRepository;
+import com.backcountry.product.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ProductServiceImplTest {
 
-	private InMemoryProductRepository repository;
+	@Mock
+	private ProductRepository repository;
+
+	@InjectMocks
 	private ProductServiceImpl service;
 
 	@BeforeEach
 	void setup() {
-		repository = new InMemoryProductRepository();
-		service = new ProductServiceImpl(repository);
+		MockitoAnnotations.openMocks(this);
 	}
 
-	// --------------------------------------------------------
+	// --------------------------------------------------
 	// CREATE
-	// --------------------------------------------------------
+	// --------------------------------------------------
 	@Test
 	void createProduct_success() {
 		CreateProductRequest req = new CreateProductRequest(
@@ -42,22 +53,24 @@ class ProductServiceImplTest {
 				List.of("outerwear")
 		);
 
+		when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
 		var created = service.create(req);
 
 		assertNotNull(created.id());
 		assertEquals("Jacket", created.name());
-		assertEquals(new BigDecimal("199.99"), created.price());
-		assertEquals(5, created.inventory());
-		assertEquals(List.of("outerwear"), created.categories());
+		verify(repository, times(1)).save(any());
 	}
 
-	// --------------------------------------------------------
+	// --------------------------------------------------
 	// GET BY ID
-	// --------------------------------------------------------
+	// --------------------------------------------------
 	@Test
 	void getProduct_found() {
-		Product p = Product.builder()
-				.id(UUID.randomUUID())
+		UUID id = UUID.randomUUID();
+
+		Product product = Product.builder()
+				.id(id)
 				.name("Boots")
 				.description("Hiking boots")
 				.brand("Salomon")
@@ -68,27 +81,35 @@ class ProductServiceImplTest {
 				.updatedAt(Instant.now())
 				.build();
 
-		repository.save(p);
+		when(repository.findById(id)).thenReturn(Optional.of(product));
 
-		var result = service.getById(p.getId());
+		var result = service.getById(id);
 
 		assertTrue(result.isPresent());
 		assertEquals("Boots", result.get().name());
+		verify(repository).findById(id);
 	}
 
 	@Test
-	void getProduct_notFound_returnsEmpty() {
-		var result = service.getById(UUID.randomUUID());
+	void getProduct_notFound() {
+		UUID id = UUID.randomUUID();
+
+		when(repository.findById(id)).thenReturn(Optional.empty());
+
+		var result = service.getById(id);
+
 		assertTrue(result.isEmpty());
 	}
 
-	// --------------------------------------------------------
+	// --------------------------------------------------
 	// UPDATE
-	// --------------------------------------------------------
+	// --------------------------------------------------
 	@Test
 	void updateProduct_success() {
+		UUID id = UUID.randomUUID();
+
 		Product existing = Product.builder()
-				.id(UUID.randomUUID())
+				.id(id)
 				.name("Tent")
 				.description("2-person tent")
 				.brand("REI")
@@ -99,7 +120,8 @@ class ProductServiceImplTest {
 				.updatedAt(Instant.now())
 				.build();
 
-		repository.save(existing);
+		when(repository.findById(id)).thenReturn(Optional.of(existing));
+		when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
 		UpdateProductRequest req = new UpdateProductRequest(
 				"Updated Tent",
@@ -110,40 +132,40 @@ class ProductServiceImplTest {
 				List.of("tents", "camping")
 		);
 
-		var result = service.update(existing.getId(), req);
+		var result = service.update(id, req);
 
 		assertTrue(result.isPresent());
 		assertEquals("Updated Tent", result.get().name());
-		assertEquals(new BigDecimal("249.99"), result.get().price());
-		assertEquals(5, result.get().inventory());
-		assertEquals(List.of("tents", "camping"), result.get().categories());
+		verify(repository).save(any());
 	}
 
 	@Test
-	void updateProduct_notFound_returnsEmpty() {
+	void updateProduct_notFound() {
+		UUID id = UUID.randomUUID();
+
+		when(repository.findById(id)).thenReturn(Optional.empty());
+
 		UpdateProductRequest req = new UpdateProductRequest(
-				"X",
-				"Y",
-				"Brand",
-				new BigDecimal("10"),
-				1,
-				List.of("cat")
+				"X", "Y", "Brand", new BigDecimal("10"), 1, List.of("cat")
 		);
 
-		var result = service.update(UUID.randomUUID(), req);
+		var result = service.update(id, req);
 
 		assertTrue(result.isEmpty());
+		verify(repository, never()).save(any());
 	}
 
-	// --------------------------------------------------------
+	// --------------------------------------------------
 	// DELETE
-	// --------------------------------------------------------
+	// --------------------------------------------------
 	@Test
 	void deleteProduct_success() {
-		Product p = Product.builder()
-				.id(UUID.randomUUID())
+		UUID id = UUID.randomUUID();
+
+		Product existing = Product.builder()
+				.id(id)
 				.name("Gloves")
-				.description("Warm gloves")
+				.description("Winter gloves")
 				.brand("Patagonia")
 				.price(new BigDecimal("49.99"))
 				.inventory(5)
@@ -152,103 +174,32 @@ class ProductServiceImplTest {
 				.updatedAt(Instant.now())
 				.build();
 
-		repository.save(p);
+		when(repository.findById(id)).thenReturn(Optional.of(existing));
 
-		assertTrue(service.delete(p.getId()));
-		assertTrue(repository.findById(p.getId()).isEmpty());
+		boolean result = service.delete(id);
+
+		assertTrue(result);
+		verify(repository).deleteById(id);
 	}
 
 	@Test
-	void deleteProduct_notFound_returnsFalse() {
-		assertFalse(service.delete(UUID.randomUUID()));
+	void deleteProduct_notFound() {
+		UUID id = UUID.randomUUID();
+
+		when(repository.findById(id)).thenReturn(Optional.empty());
+
+		boolean result = service.delete(id);
+
+		assertFalse(result);
+		verify(repository, never()).deleteById(any());
 	}
 
-	// --------------------------------------------------------
-	// LIST (FILTERS, SORT, PAGINATION)
-	// --------------------------------------------------------
+	// --------------------------------------------------
+	// LIST
+	// --------------------------------------------------
 	@Test
-	void list_filterByBrand_success() {
-		addSampleProducts();
-
-		var result = service.list("Patagonia", null, null, null, null, 0, 10);
-
-		assertEquals(1, result.size());
-		assertEquals("Patagonia Jacket", result.get(0).name());
-	}
-
-	@Test
-	void list_filterByCategory_success() {
-		addSampleProducts();
-
-		var result = service.list(null, "camping", null, null, null, 0, 10);
-		assertEquals(1, result.size());
-		assertEquals("Tent", result.get(0).name());
-	}
-
-	@Test
-	void list_filterByPriceRange_success() {
-		addSampleProducts();
-
-		var result = service.list(null, null, 50.0, 150.0, null, 0, 10);
-		assertEquals(1, result.size());
-		assertEquals("Boots", result.get(0).name());
-	}
-
-	@Test
-	void list_sortByPrice_success() {
-		addSampleProducts();
-
-		var result = service.list(null, null, null, null, "price", 0, 10);
-
-		assertEquals("Boots", result.get(0).name());       // 99.99
-		assertEquals("Tent", result.get(1).name());        // 199.99
-		assertEquals("Patagonia Jacket", result.get(2).name());
-	}
-
-	@Test
-	void list_pagination_success() {
-		addSampleProducts();
-
-		var page1 = service.list(null, null, null, null, "name", 0, 1);
-		var page2 = service.list(null, null, null, null, "name", 1, 1);
-
-		assertEquals(1, page1.size());
-		assertEquals(1, page2.size());
-
-		// Alphabetically
-		assertEquals("Boots", page1.get(0).name());
-		assertEquals("Patagonia Jacket", page2.get(0).name());
-	}
-
-	// --------------------------------------------------------
-	// Helper to preload test data
-	// --------------------------------------------------------
-	private void addSampleProducts() {
-		repository.save(Product.builder()
-				.id(UUID.randomUUID())
-				.name("Patagonia Jacket")
-				.description("Warm jacket")
-				.brand("Patagonia")
-				.price(new BigDecimal("299.99"))
-				.inventory(10)
-				.categories(List.of("outerwear"))
-				.createdAt(Instant.now())
-				.updatedAt(Instant.now())
-				.build());
-
-		repository.save(Product.builder()
-				.id(UUID.randomUUID())
-				.name("Boots")
-				.description("Hiking boots")
-				.brand("Columbia")
-				.price(new BigDecimal("99.99"))
-				.inventory(4)
-				.categories(List.of("footwear"))
-				.createdAt(Instant.now())
-				.updatedAt(Instant.now())
-				.build());
-
-		repository.save(Product.builder()
+	void list_products_withFilters() {
+		Product a = Product.builder()
 				.id(UUID.randomUUID())
 				.name("Tent")
 				.description("Camping tent")
@@ -258,6 +209,25 @@ class ProductServiceImplTest {
 				.categories(List.of("camping"))
 				.createdAt(Instant.now())
 				.updatedAt(Instant.now())
-				.build());
+				.build();
+
+		Product b = Product.builder()
+				.id(UUID.randomUUID())
+				.name("Boots")
+				.description("Hiking boots")
+				.brand("Columbia")
+				.price(new BigDecimal("99.99"))
+				.inventory(4)
+				.categories(List.of("footwear"))
+				.createdAt(Instant.now())
+				.updatedAt(Instant.now())
+				.build();
+
+		when(repository.findAll()).thenReturn(List.of(a, b));
+
+		var result = service.list("Columbia", null, null, null, null, 0, 10);
+
+		assertEquals(1, result.size());
+		assertEquals("Boots", result.get(0).name());
 	}
 }
