@@ -1,3 +1,24 @@
+## Table of Contents
+
+1. [Overview](#backcountry-product-api)
+2. [Running the Application](#running-the-application)
+3. [API Documentation (Swagger UI)](#api-documentation-swagger-ui)
+4. [Features](#features)
+5. [Endpoints](#endpoints)
+    - [Health Check](#health-check)
+    - [Create Product](#create-product)
+    - [Get Product by ID](#get-product-by-id)
+    - [List Products](#list-products)
+    - [Update Product](#update-product)
+    - [Delete Product](#delete-product)
+6. [Testing](#testing)
+7. [Packaging](#packaging)
+8. [Sample cURL Requests](#sample-curl-requests)
+9. [Production-Readiness & Real Database Integration](#production-readiness--real-database-integration)
+    - [Making the API Production-Ready](#making-this-api-production-ready)
+    - [Integrating With MongoDB](#integrating-with-mongodb-real-db)
+
+
 # Backcountry Product API
 #### Assessment by Ignacio Dobles
 
