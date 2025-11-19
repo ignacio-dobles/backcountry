@@ -234,6 +234,85 @@ Designed to reflect clean, maintainable production code.
 
 Fully Docker-compatible (optional enhancement).
 
+## Sample CURL requests
+Run this to start the server:
+```shell
+mvn spring-boot:run
+```
+
+### Create Product (POST /products)
+```shell
+curl -X POST http://localhost:8080/products \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Patagonia Nano Puff Jacket",
+    "description": "Lightweight insulated jacket",
+    "brand": "Patagonia",
+    "price": 189.99,
+    "inventory": 15,
+    "categories": ["jackets", "insulated"]
+  }'
+```
+
+### Get Product by ID (GET /products/{id})
+```shell
+curl http://localhost:8080/products/REPLACE_WITH_REAL_ID
+```
+
+### List All Products (GET /products)
+```shell
+curl http://localhost:8080/products
+```
+
+### Filter by Brand
+```shell
+curl "http://localhost:8080/products?brand=Patagonia"
+```
+
+### Filter by Category
+```shell
+curl "http://localhost:8080/products?category=jackets"
+```
+
+### Filter by Price Range
+```shell
+curl "http://localhost:8080/products?priceMin=100&priceMax=200"
+```
+
+### Sort by Price (Ascending)
+```shell
+curl "http://localhost:8080/products?sort=price"
+```
+
+### Pagination Example
+```shell
+curl "http://localhost:8080/products?page=0&size=5"
+```
+
+### Update Product (PUT /products/{id})
+```shell
+curl -X PUT http://localhost:8080/products/REPLACE_WITH_REAL_ID \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Patagonia Nano Puff Jacket (Updated)",
+    "description": "Updated lightweight insulated jacket",
+    "brand": "Patagonia",
+    "price": 169.99,
+    "inventory": 12,
+    "categories": ["jackets", "winter"]
+  }'
+```
+
+### Delete Product (DELETE /products/{id})
+```shell
+curl -X DELETE http://localhost:8080/products/REPLACE_WITH_REAL_ID
+```
+
+### Health Check (GET /health)
+```shell
+curl http://localhost:8080/health
+```
+
 ## Production-Readiness & Real Database Integration
 
 This project provides a fully functional REST API for managing products, currently backed by an in-memory repository for simplicity and exercise purposes.
