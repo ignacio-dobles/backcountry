@@ -8,6 +8,19 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Product entity model.
+ * @id UUID
+ * @name String
+ * @description String
+ * @brand String
+ * @price BigDecimal
+ * @inventory int
+ * @categories List<String>
+ * @createdAt Instant
+ * @updatedAt Instant
+
+ */
 @Data
 @Builder
 public class Product {

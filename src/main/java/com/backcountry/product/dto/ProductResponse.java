@@ -5,6 +5,18 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Response DTO for Product details.
+ * @param id
+ * @param name
+ * @param description
+ * @param brand
+ * @param price
+ * @param inventory
+ * @param categories
+ * @param createdAt
+ * @param updatedAt
+ */
 public record ProductResponse(
 		UUID id,
 		String name,

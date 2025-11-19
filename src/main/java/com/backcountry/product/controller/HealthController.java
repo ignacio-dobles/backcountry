@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
+/**
+ * Health check controller to verify the service is running.
+ */
 @RestController
 public class HealthController {
 

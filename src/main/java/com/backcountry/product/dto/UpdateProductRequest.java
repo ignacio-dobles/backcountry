@@ -9,6 +9,15 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
+/**
+ * Request DTO for updating an existing Product.
+ * @param name
+ * @param description
+ * @param brand
+ * @param price
+ * @param inventory
+ * @param categories
+ */
 public record UpdateProductRequest(
 
 		@NotBlank

@@ -10,9 +10,17 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Global exception handler for REST controllers.
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+	/**
+	 * Handle validation errors
+	 * @param ex MethodArgumentNotValidException
+	 * @return ResponseEntity with ApiError
+	 */
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ApiError> handleValidationErrors(MethodArgumentNotValidException ex) {
 
@@ -34,19 +42,29 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.badRequest().body(error);
 	}
 
+	/**
+	 * Handle ProductNotFoundException
+	 * @param ex ProductNotFoundException
+	 * @return ResponseEntity with ApiError
+	 */
 	@ExceptionHandler(ProductNotFoundException.class)
 	public ResponseEntity<ApiError> handleNotFound(ProductNotFoundException ex) {
 
 		ApiError error = new ApiError(
 				Instant.now(),
 				HttpStatus.NOT_FOUND.value(),
-				"Product Not Found",     // <---- REQUIRED BY TESTS
-				Map.of("message", ex.getMessage())  // still preserve original message
+				"Product Not Found",
+				Map.of("message", ex.getMessage())
 		);
 
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
 	}
 
+	/**
+	 * Handle generic exceptions
+	 * @param ex Exception
+	 * @return ResponseEntity with ApiError
+	 */
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiError> handleGeneric(Exception ex) {
 

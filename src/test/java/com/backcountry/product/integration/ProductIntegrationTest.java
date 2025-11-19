@@ -39,7 +39,7 @@ public class ProductIntegrationTest {
 
 	@BeforeEach
 	void setup() throws Exception {
-		repository.clear(); // IMPORTANT
+		repository.clear();
 
 		createProduct("Nano Jacket", "Patagonia", 199.99, List.of("jackets"));
 		createProduct("Trail Boots", "Salomon", 149.99, List.of("footwear"));
