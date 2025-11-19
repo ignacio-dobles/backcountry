@@ -13,7 +13,7 @@
     - [Delete Product](#delete-product)
 6. [Testing](#testing)
 7. [Packaging](#packaging)
-8. [Sample cURL Requests](#sample-curl-requests)
+8. [Sample CURL Requests](#sample-curl-requests)
 9. [Production-Readiness & Real Database Integration](#production-readiness--real-database-integration)
     - [Making the API Production-Ready](#making-this-api-production-ready)
     - [Integrating With MongoDB](#integrating-with-mongodb-real-db)
