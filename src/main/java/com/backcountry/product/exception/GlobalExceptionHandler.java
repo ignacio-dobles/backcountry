@@ -13,9 +13,6 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-	// -------------------------------------
-	// 400 - Validation errors
-	// -------------------------------------
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ApiError> handleValidationErrors(MethodArgumentNotValidException ex) {
 
@@ -37,26 +34,19 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.badRequest().body(error);
 	}
 
-	// -------------------------------------
-	// 404 - Not Found
-	// (We call this manually from controller via logic)
-	// -------------------------------------
 	@ExceptionHandler(ProductNotFoundException.class)
 	public ResponseEntity<ApiError> handleNotFound(ProductNotFoundException ex) {
 
 		ApiError error = new ApiError(
 				Instant.now(),
 				HttpStatus.NOT_FOUND.value(),
-				ex.getMessage(),
-				Map.of()
+				"Product Not Found",     // <---- REQUIRED BY TESTS
+				Map.of("message", ex.getMessage())  // still preserve original message
 		);
 
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
 	}
 
-	// -------------------------------------
-	// 500 - Generic
-	// -------------------------------------
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiError> handleGeneric(Exception ex) {
 

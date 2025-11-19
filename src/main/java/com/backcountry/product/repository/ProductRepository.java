@@ -15,4 +15,6 @@ public interface ProductRepository {
 	List<Product> findAll();
 
 	void deleteById(UUID id);
+
+	void clear();
 }

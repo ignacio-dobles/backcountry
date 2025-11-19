@@ -35,4 +35,9 @@ public class InMemoryProductRepository implements ProductRepository {
 	public void deleteById(UUID id) {
 		store.remove(id);
 	}
+
+	@Override
+	public void clear() {
+		store.clear();
+	}
 }
