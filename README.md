@@ -198,16 +198,17 @@ Request Body:
 
 Run tests with:
 
+```shell
 mvn test
-
+```
 
 The project uses:
 
-JUnit 5
+* JUnit 5
 
-Spring Boot Test
+* Spring Boot Test
 
-Mockito (optional)
+* Mockito
 
 ## Packaging
 
